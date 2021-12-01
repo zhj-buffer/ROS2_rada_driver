@@ -13,6 +13,22 @@ colcon build
 # launch the rada node
 ```
 ros2 run   ros2_rada_driver_pub  rada_pub 
+
+nvidia@nvidia-desktop:~/workspace/alan/test$ ros2 run   ros2_rada_driver_pub  rada_pub 
+[INFO] [1638363813.736611966] [RadaPublisher]:  Raw: ff 07 65 00 00 07 c0 ee ee 0e  n: 10 
+
+[INFO] [1638363813.737728792] [RadaPublisher]: CRC: 000e 
+[INFO] [1638363813.737887872] [RadaPublisher]: Rada CRC right!
+[INFO] [1638363813.883525403] [RadaPublisher]:  Raw: ff 07 65 00 00 00 5d ee ee a4  n: 10 
+
+[INFO] [1638363813.883872269] [RadaPublisher]: CRC: 00a4 
+[INFO] [1638363813.884132667] [RadaPublisher]: Rada CRC right!
+[INFO] [1638363814.029533098] [RadaPublisher]:  Raw: ff 07 65 00 00 00 5d ee ee a4  n: 10 
+
+[INFO] [1638363814.029958944] [RadaPublisher]: CRC: 00a4 
+[INFO] [1638363814.030161578] [RadaPublisher]: Rada CRC right!
+[INFO] [1638363814.176427942] [RadaPublisher]:  Raw: ff 07 65 00 00 00 5d ee ee a4  n: 10 
+
 ```
 
 # Get the msg interface
