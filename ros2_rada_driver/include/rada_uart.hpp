@@ -24,7 +24,7 @@ static int ret;
 
 
 #if 1
- int uart_init(int fd);
+ int uart_init(char *path);
  int uart_deinit(int fd);
  int uart_close(int fd);
  int uart_write(int fd,const  char *w_buf,size_t len);
@@ -286,9 +286,10 @@ int uart_read(int fd, char *r_buf,size_t len)
     FD_SET(fd,&rfds);
 
     /*设置超时为15s*/
-    time.tv_sec = 5;
+    time.tv_sec = 15;
     time.tv_usec = 0;
 
+        //printf("fd: %d %s, %s, %d\n",fd, __func__,__FILE__,__LINE__);
     /*实现串口的多路I/O*/
     ret = select(fd+1,&rfds,NULL,NULL,&time);
     switch(ret)
@@ -314,7 +315,7 @@ int uart_write(int fd,const  char *w_buf,size_t len)
 {
     ssize_t cnt = 0;
 
-        printf("fd: %d %s, %s, %d\n",fd, __func__,__FILE__,__LINE__);
+        //printf("fd: %d %s, %s, %d\n",fd, __func__,__FILE__,__LINE__);
     cnt = safe_write(fd,w_buf,len);
     if(cnt == -1)
     {
@@ -322,13 +323,12 @@ int uart_write(int fd,const  char *w_buf,size_t len)
         return -1;
     }
 
-        printf("fd: %d %s, %s, %d\n",fd, __func__,__FILE__,__LINE__);
     return cnt;
 }
 
 int uart_close(int fd)
 {
-	printf(" fd: %d \n", fd);
+	//printf(" fd: %d \n", fd);
     assert(fd);
     close(fd);
 
@@ -341,54 +341,35 @@ int uart_deinit(int fd)
 {
 	return uart_close(fd);
 }
-int uart_init(int fd)
+int uart_init(char *path)
 {
 
-        printf("%s, %s, %d\n",__func__,__FILE__,__LINE__);
+    int fd = -1;
 
-    fd = uart_open(fd,"/dev/ttyUSB4");/*串口号/dev/ttySn,USB口号/dev/ttyUSBn*/
+    fd = uart_open(fd,path);/*串口号/dev/ttySn,USB口号/dev/ttyUSBn*/
     if(fd == -1)
     {
         fprintf(stderr,"uart_open error\n");
         exit(EXIT_FAILURE);
     }
 
-        printf("fd: %d %s, %s, %d\n",fd, __func__,__FILE__,__LINE__);
-    //if(uart_set(fd,9600,0,8,'N',1) == -1)
+        //printf("fd: %d %s, %s, %d\n",fd, __func__,__FILE__,__LINE__);
     if(uart_set(fd,9600,0,8,'N',1) == -1)
     {
         fprintf(stderr,"uart set failed!\n");
         exit(EXIT_FAILURE);
         return -1;
     }
-        printf("fd: %d %s, %s, %d\n",fd, __func__,__FILE__,__LINE__);
-    fd = uart_open(fd,"/dev/ttyUSB9");/*串口号/dev/ttySn,USB口号/dev/ttyUSBn*/
-    if(fd == -1)
-    {
-        fprintf(stderr,"uart_open error\n");
-        exit(EXIT_FAILURE);
-    }
-
-        printf("fd: %d %s, %s, %d\n",fd, __func__,__FILE__,__LINE__);
-    //if(uart_set(fd,9600,0,8,'N',1) == -1)
-    if(uart_set(fd,9600,0,8,'N',1) == -1)
-    {
-        fprintf(stderr,"uart set failed!\n");
-        exit(EXIT_FAILURE);
-        return -1;
-    }
-        printf("fd: %d %s, %s, %d\n",fd, __func__,__FILE__,__LINE__);
 
 
-
-    return 0;
+    return fd;
 }
 
 //int uartWriteBuf( char *buf, size_t len)
 int LobotSerialWrite(int fd,  char *buf, size_t len)
 {
 
-    printf("%s%s%d\n", __func__,__FILE__, __LINE__);
+    //printf("%s%s%d\n", __func__,__FILE__, __LINE__);
     return uart_write(fd, buf, len);
 
 }

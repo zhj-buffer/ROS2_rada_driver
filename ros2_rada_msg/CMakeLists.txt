@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(ros2_rada_driver_pub)
+project(ros2_rada_msg)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -17,19 +17,14 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
-include_directories(include)
-add_executable(rada_pub src/rada_pub.cpp)
-ament_target_dependencies(rada_pub rclcpp std_msgs)
+find_package(rosidl_default_generators REQUIRED)
 
-install(TARGETS
-  rada_pub
-  DESTINATION lib/${PROJECT_NAME})
+rosidl_generate_interfaces(${PROJECT_NAME}
+	"msg/Rada.msg"
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
