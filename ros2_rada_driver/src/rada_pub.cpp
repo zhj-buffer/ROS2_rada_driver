@@ -19,16 +19,16 @@ class RadaPublisher : public rclcpp::Node
     RadaPublisher()
     : Node("RadaPublisher")
     {
-	    char *tty1 = "/dev/ttyUSB4";
-	    char *tty2 = "/dev/ttyUSB4";
-	fd1= uart_init(tty1);
-	 fd2= uart_init(tty2);
+      char *tty1 = "/dev/ttyUSB4";
+      char *tty2 = "/dev/ttyUSB9";
+      fd1= uart_init(tty1);
+      fd2= uart_init(tty2);
       publisher1_ = this->create_publisher<ros2_rada_msg::msg::Rada>("rada1", 10);
       publisher2_ = this->create_publisher<ros2_rada_msg::msg::Rada>("rada2", 10);
       timer1_ = this->create_wall_timer(
-      200ms, std::bind(&RadaPublisher::timer_callback1, this));
+      250ms, std::bind(&RadaPublisher::timer_callback1, this));
       timer2_ = this->create_wall_timer(
-      200ms, std::bind(&RadaPublisher::timer_callback2, this));
+      250ms, std::bind(&RadaPublisher::timer_callback2, this));
     }
 
   private:
