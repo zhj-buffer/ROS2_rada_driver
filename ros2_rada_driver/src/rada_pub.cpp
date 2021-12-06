@@ -34,7 +34,7 @@ class RadaPublisher : public rclcpp::Node
   private:
     void timer_callback1()
     {
-	    //auto message = ros2_rada_msg::msg::String();
+
 	    auto message = ros2_rada_msg::msg::Rada();
 
 	    const char *w_buf = (const char *)"11111";
@@ -70,13 +70,12 @@ class RadaPublisher : public rclcpp::Node
 	    else
 		    RCLCPP_INFO(this->get_logger(), "Rada CRC Wrong!");
 
-//	    RCLCPP_INFO(this->get_logger(), "Publishing: %s", message.data.c_str());
 	    publisher1_->publish(message);
 
     }
     void timer_callback2()
     {
-	    //auto message = ros2_rada_msg::msg::String();
+
 	    auto message = ros2_rada_msg::msg::Rada();
 
 	    const char *w_buf = (const char *)"11111";
@@ -115,7 +114,6 @@ class RadaPublisher : public rclcpp::Node
 	    else
 		    RCLCPP_INFO(this->get_logger(), "Rada CRC Wrong!");
 
-//	    RCLCPP_INFO(this->get_logger(), "Publishing: %s", message.data.c_str());
 	    publisher2_->publish(message);
     }
 
