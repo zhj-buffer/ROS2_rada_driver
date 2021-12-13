@@ -42,13 +42,14 @@ class RadaPublisher : public rclcpp::Node
 	    int ret = -1;
 	    char r_buf[11];
 	    bzero(r_buf,11);
-
+#if 0
 	    ret = uart_write(fd1,w_buf,w_len);
 	    if(ret == -1)
 	    {
 		    fprintf(stderr,"uart write failed!\n");
 		    exit(EXIT_FAILURE);
 	    }
+#endif
 	    ret = uart_read(fd1,r_buf,10);
 	    if(ret == -1)
 	    {
@@ -83,14 +84,14 @@ class RadaPublisher : public rclcpp::Node
 	    int ret = -1;
 	    char r_buf[11];
 	    bzero(r_buf,11);
-
+#if 0
 	    ret = uart_write(fd2,w_buf,w_len);
 	    if(ret == -1)
 	    {
 		    fprintf(stderr,"uart write failed!\n");
 		    exit(EXIT_FAILURE);
 	    }
-
+#endif
 	    ret = uart_read(fd2,r_buf,10);
 	    if(ret == -1)
 	    {
