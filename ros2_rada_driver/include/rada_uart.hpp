@@ -83,6 +83,27 @@ ssize_t safe_read(int fd,  char *vptr,size_t n)
         else
         if(nread == 0)
             break;
+
+	if (*ptr != 0xff) {
+		printf("not header %02x %02x %02x %02x %02x %02x %02x  %02x %02x %02x\n", *ptr, *(ptr+1), *(ptr+2) ,*(ptr+3) ,*(ptr+4) ,*(ptr+5) ,*(ptr+6) ,*(ptr+7) ,*(ptr+8) ,*(ptr+9));
+		for (int i = 1; i < 10; i++)
+		{
+			if (*(ptr+i) == 0xff) {
+				memmove(ptr, ptr+i, 10 - i);
+
+//				int ret = read(fd, ptr+, i);
+//				memcpy(ptr+10-i, buf, i);
+				nread = 10 - i;
+			}
+
+			if ((i == 9) && (*(ptr+9) != 0xff))
+				printf("no header found\n");
+		}
+
+	} else {
+	}
+
+
         nleft -= nread;
         ptr += nread;
     }
@@ -94,7 +115,7 @@ int uart_open(int fd,const char *pathname)
     assert(pathname);
 
     /*打开串口*/
-    fd = open(pathname,O_RDWR|O_NOCTTY|O_NDELAY);
+    fd = open(pathname,O_RDWR|O_NOCTTY|O_NDELAY|O_NONBLOCK);
     if(fd == -1)
     {
         perror("Open UART failed!");
@@ -251,6 +272,7 @@ int uart_set(int fd,int baude,int c_flow,int bits, char parity,int stop)
 
     /*设置本地模式为原始模式*/
     options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    //options.c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN|ECHOE);
     /*
      *ICANON：允许规范模式进行输入处理
      *ECHO：允许输入字符的本地回显
