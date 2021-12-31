@@ -3,11 +3,13 @@ Uart Rada driver for ROS2 Foxy/Galactic on Jetson (JP4.6)
 
 # Get the repo
 ```
-git clone https://github.com/zhj-buffer/ROS2_rada_driver.git
+mkdir -p src/dev_ws  && git clone https://github.com/zhj-buffer/ROS2_rada_driver.git
+cd ..
 ```
 # Build from source
 ```
 colcon build
+source install/setup.bash
 ```
 
 # launch the rada node
