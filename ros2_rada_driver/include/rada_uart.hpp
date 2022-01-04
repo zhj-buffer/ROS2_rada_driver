@@ -21,7 +21,7 @@ extern "C" {
  int uart_read(int Uart_fd, unsigned char *pData, int max_size);
  int uart_write(int Uart_fd, unsigned char *pData, int max_size);
  int uart_setup(int Uart_fd, int baud_rate);
- int uart_open(char *pDevPath);
+ int uart_open(const char *pDevPath);
 
  int uart_close(int Uart_fd)
  {
@@ -115,7 +115,7 @@ extern "C" {
 	 }
 	 return ret;
  }
- int uart_open(char *pDevPath)
+ int uart_open(const char *pDevPath)
  {
 	
 	int  Uart_fd = open( pDevPath, O_RDWR);
