@@ -58,8 +58,6 @@ class RadaPublisher : public rclcpp::Node
 	    auto message = ros2_rada_msg::msg::Rada();
 
 	    mutex.lock();
-	    const char *w_buf = (const char *)"11111";
-	    size_t w_len = sizeof(w_buf);
 	    int ret = -1;
 	    unsigned char r_buf[10]={0};
 	    ret = uart_read(fd,r_buf,10);
@@ -75,14 +73,14 @@ class RadaPublisher : public rclcpp::Node
 	    message.crc = (r_buf[0] + r_buf[1] + r_buf[2] + r_buf[3] + r_buf[4] + r_buf[5] + r_buf[6] + r_buf[7] + r_buf[8]) & 0x00ff;
 
 	    if (message.crc == r_buf[9]) {
-		    RCLCPP_INFO(this->get_logger()," %s: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x  n: %d ", rada, r_buf[0], r_buf[1], r_buf[2], r_buf[3], r_buf[4], r_buf[5],r_buf[6], r_buf[7], r_buf[8], r_buf[9] ,ret);
+		    RCLCPP_INFO(this->get_logger()," %s: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x  n: %d ", rada.c_str(), r_buf[0], r_buf[1], r_buf[2], r_buf[3], r_buf[4], r_buf[5],r_buf[6], r_buf[7], r_buf[8], r_buf[9] ,ret);
 		    RCLCPP_INFO(this->get_logger(),"CRC: %04x\n", (r_buf[0] + r_buf[1] + r_buf[2] + r_buf[3] + r_buf[4] + r_buf[5] + r_buf[6] + r_buf[7] + r_buf[8]) & 0x00ff);
 		    publisher_->publish(message);
 	    }
 	    else {
 		    RCLCPP_INFO(this->get_logger()," %s: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x  n: %d ",rada, r_buf[0], r_buf[1], r_buf[2], r_buf[3], r_buf[4], r_buf[5],r_buf[6], r_buf[7], r_buf[8], r_buf[9] ,ret);
 		    RCLCPP_INFO(this->get_logger(),"CRC: %04x\n", (r_buf[0] + r_buf[1] + r_buf[2] + r_buf[3] + r_buf[4] + r_buf[5] + r_buf[6] + r_buf[7] + r_buf[8]) & 0x00ff);
-		    RCLCPP_INFO(this->get_logger(), "%s CRC Wrong!\n", rada);
+		    RCLCPP_INFO(this->get_logger(), "%s CRC Wrong!\n", rada.c_str());
 	    }
 	    mutex.unlock();
 
@@ -102,7 +100,6 @@ int main(int argc, char * argv[])
 		using SingleThreadedExecutor = rclcpp::executors::SingleThreadedExecutor;
 		SingleThreadedExecutor executor;
 		auto rada1 = std::make_shared<RadaPublisher>("RadaPublisher1", "rada1", "/dev/ttyUSB4");
-		// executor.spin();
 
 		executor.add_node(rada1);
 		std::thread executor_thread(std::bind(&SingleThreadedExecutor::spin, &executor));
@@ -115,7 +112,7 @@ int main(int argc, char * argv[])
 
 		executor_thread1.join();
 		executor_thread.join();
-//		rclcpp::spin(std::make_shared<RadaPublisher>());
+
 		rclcpp::shutdown();
   return 0;
 }
