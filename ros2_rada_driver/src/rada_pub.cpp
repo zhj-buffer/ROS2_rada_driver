@@ -99,12 +99,12 @@ int main(int argc, char * argv[])
 		rclcpp::init(argc, argv);
 		using SingleThreadedExecutor = rclcpp::executors::SingleThreadedExecutor;
 		SingleThreadedExecutor executor;
-		auto rada1 = std::make_shared<RadaPublisher>("RadaPublisher1", "rada1", "/dev/ttyUSB4");
+		auto rada1 = std::make_shared<RadaPublisher>("RadaPublisher1", "rada1", "/dev/rada1");
 
 		executor.add_node(rada1);
 		std::thread executor_thread(std::bind(&SingleThreadedExecutor::spin, &executor));
 
-		auto rada2 = std::make_shared<RadaPublisher>("RadaPublisher2", "rada2", "/dev/ttyUSB5");
+		auto rada2 = std::make_shared<RadaPublisher>("RadaPublisher2", "rada2", "/dev/rada2");
 		SingleThreadedExecutor executor1;
 		executor1.add_node(rada2);
 
