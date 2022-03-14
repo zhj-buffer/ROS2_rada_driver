@@ -6,6 +6,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "ros2_rada_msg/msg/rada.hpp"
 #include "rada_uart.hpp"
+#include "sensor_msgs/msg/range.hpp"
 
 using namespace std::chrono_literals;
 using namespace std;
@@ -41,7 +42,7 @@ class RadaPublisher : public rclcpp::Node
 	      exit(EXIT_FAILURE);
       }
 
-      publisher_ = this->create_publisher<ros2_rada_msg::msg::Rada>(output, 10);
+      publisher_ = this->create_publisher<sensor_msgs::msg::Range>(output+"range", 10);
       timer_ = this->create_wall_timer(
 		      100ms, std::bind(&RadaPublisher::timer_callback, this));
     }
@@ -55,10 +56,11 @@ class RadaPublisher : public rclcpp::Node
     void timer_callback()
     {
 
-	    auto message = ros2_rada_msg::msg::Rada();
+	    auto message = sensor_msgs::msg::Range();
 
 	    mutex.lock();
 	    int ret = -1;
+	    int r1, r2, r3, r4, crc;
 	    unsigned char r_buf[10]={0};
 	    ret = uart_read(fd,r_buf,10);
 	    if(ret == -1)
@@ -66,12 +68,66 @@ class RadaPublisher : public rclcpp::Node
 		    fprintf(stderr,"uart read failed!\n");
 		    exit(EXIT_FAILURE);
 	    }
-	    message.r1 = (r_buf[1] << 8) + r_buf[2];
-	    message.r2 = (r_buf[3] << 8) + r_buf[4];
-	    message.r3 = (r_buf[5] << 8) + r_buf[6];
-	    message.r4 = (r_buf[7] << 8) + r_buf[8];
-	    message.crc = (r_buf[0] + r_buf[1] + r_buf[2] + r_buf[3] + r_buf[4] + r_buf[5] + r_buf[6] + r_buf[7] + r_buf[8]) & 0x00ff;
+	    r1 = (r_buf[1] << 8) + r_buf[2];
+	    r2 = (r_buf[3] << 8) + r_buf[4];
+	    r3 = (r_buf[5] << 8) + r_buf[6];
+	    r4 = (r_buf[7] << 8) + r_buf[8];
+	    crc = (r_buf[0] + r_buf[1] + r_buf[2] + r_buf[3] + r_buf[4] + r_buf[5] + r_buf[6] + r_buf[7] + r_buf[8]) & 0x00ff;
+	    
+	    rclcpp::Time now = this->get_clock()->now();
+ 	    if(rada == "rada2")	 {
+		    message.header.frame_id = rada;
+		    message.header.stamp = now;
+		    message.radiation_type = sensor_msgs::msg::Range::ULTRASOUND;
+		    message.field_of_view = 3.1415926/6.0;             
+		    message.min_range = 0.10;                  // 10 cm.
+		    message.max_range = 3.00;                  // 300 cm. Range
 
+		    message.range = (float) r4;  // range in meters from centimeters
+
+		    // from https://github.com/ros2/common_interfaces/blob/master/sensor_msgs/msg/Range.msg
+		    // # (Note: values < range_min or > range_max should be discarded)
+		    if((message.range >= message.min_range) && (message.range <= message.max_range)) {
+			publisher_->publish(message);
+		    }
+	    }
+	    
+	    if(rada == "rada1")	 {
+		    message.header.frame_id = rada;
+		    message.header.stamp = now;
+		    message.radiation_type = sensor_msgs::msg::Range::ULTRASOUND;
+		    message.field_of_view = 3.1415926/6.0;   // ?          
+		    message.min_range = 0.10;                  // 10 cm.
+		    message.max_range = 3.00;                  // 300 cm. Range
+
+		    message.range = (float) r1 * cos(message.field_of_view/2);  // range in meters from centimeters
+
+		    // from https://github.com/ros2/common_interfaces/blob/master/sensor_msgs/msg/Range.msg
+		    // # (Note: values < range_min or > range_max should be discarded)
+		    if((message.range >= message.min_range) && (message.range <= message.max_range)) {
+			publisher_->publish(message);
+		    }
+	    }
+	    
+	    if(rada == "rada1")	 {
+		    message.header.frame_id = rada;
+		    message.header.stamp = now;
+		    message.radiation_type = sensor_msgs::msg::Range::ULTRASOUND;
+		    message.field_of_view = 3.1415926/6.0;   // ?          
+		    message.min_range = 0.10;                  // 10 cm.
+		    message.max_range = 3.00;                  // 300 cm. Range
+
+		    message.range = (float) r3 * cos(message.field_of_view/2);  // range in meters from centimeters
+
+		    // from https://github.com/ros2/common_interfaces/blob/master/sensor_msgs/msg/Range.msg
+		    // # (Note: values < range_min or > range_max should be discarded)
+		    if((message.range >= message.min_range) && (message.range <= message.max_range)) {
+			publisher_->publish(message);
+		    }
+	    }
+	    
+	    
+#if 0
 	    if (message.crc == r_buf[9]) {
 		    //RCLCPP_INFO(this->get_logger()," %s: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x  n: %d ", rada.c_str(), r_buf[0], r_buf[1], r_buf[2], r_buf[3], r_buf[4], r_buf[5],r_buf[6], r_buf[7], r_buf[8], r_buf[9] ,ret);
 		    //RCLCPP_INFO(this->get_logger(),"CRC: %04x\n", (r_buf[0] + r_buf[1] + r_buf[2] + r_buf[3] + r_buf[4] + r_buf[5] + r_buf[6] + r_buf[7] + r_buf[8]) & 0x00ff);
@@ -82,6 +138,7 @@ class RadaPublisher : public rclcpp::Node
 		    RCLCPP_INFO(this->get_logger(),"CRC: %04x\n", (r_buf[0] + r_buf[1] + r_buf[2] + r_buf[3] + r_buf[4] + r_buf[5] + r_buf[6] + r_buf[7] + r_buf[8]) & 0x00ff);
 		    RCLCPP_INFO(this->get_logger(), "%s CRC Wrong!\n", rada.c_str());
 	    }
+#endif
 	    mutex.unlock();
 
     }
@@ -89,9 +146,9 @@ class RadaPublisher : public rclcpp::Node
 
     int fd;
     boost::mutex mutex;
-	std::string rada;
+    std::string rada;
     rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<ros2_rada_msg::msg::Rada>::SharedPtr publisher_;
+    rclcpp::Publisher<sensor_msgs::msg::Range>::SharedPtr publisher_;
 };
 
 int main(int argc, char * argv[])
@@ -114,5 +171,5 @@ int main(int argc, char * argv[])
 		executor_thread.join();
 
 		rclcpp::shutdown();
-  return 0;
+  		return 0;
 }
